@@ -1,0 +1,8 @@
+<div class="span8">
+  <% if @matchedrides.any? %>
+    <h3> No of bookings (<%= @matchedrides.count %>)</h3> 
+    <ol class="matchedrides">
+      <%= render partial: "matchedride", collection: @matchedrides %> 
+    </ol>
+  <% end %>
+</div>

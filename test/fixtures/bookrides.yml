@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  source: MyString
+  destination: MyString
+  date: MyString
+  time: MyString
+  numseats: 1
+  totalcost: 1.5
+
+two:
+  source: MyString
+  destination: MyString
+  date: MyString
+  time: MyString
+  numseats: 1
+  totalcost: 1.5

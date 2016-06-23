@@ -1,0 +1,22 @@
+<h1>Offer a Ride</h1>
+
+<%= form_for (@offerride), url: offerrides_path do |f| %>
+  <%= render 'shared/error_messages', object: f.object %>
+  <%= f.label :source %>
+  <%= f.text_field :source %><br>
+  <%= f.label :destination %>
+  <%= f.text_field :destination %><br>
+  <%= f.label :date %>
+  <%= f.text_field :date, type: 'date' %><br>
+  <%= f.label :time %>
+  <%= f.text_field :time, type: 'time' %><br>
+  <%= f.label :cost %>
+  <%= f.number_field :cost, :step => 'any' %><br>
+  <%= f.label :totalseats %>
+  <%= f.number_field :totalseats %><br>
+   <%= f.label :contactnum %>
+  <%= f.number_field :contactnum %><br>
+  <%= f.submit "Post", class: "btn btn-large btn-primary" %>
+<% end %>
+
+<%= link_to "Cancel", offerrides_path %>

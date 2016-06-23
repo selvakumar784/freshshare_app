@@ -1,0 +1,8 @@
+<div class="span8">
+    <% if @offerrides.any? %>
+      <h3>Your matched rides (<%= @offerrides.count %>)</h3> 
+      <ol class="offerrides">
+        <%= render @offerrides %> 
+      </ol>
+    <% end %>
+  </div>

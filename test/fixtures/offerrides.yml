@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  source: MyString
+  destination: MyString
+  date: MyString
+  time: MyString
+  cost: 
+
+two:
+  source: MyString
+  destination: MyString
+  date: MyString
+  time: MyString
+  cost: 

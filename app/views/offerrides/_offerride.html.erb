@@ -1,0 +1,38 @@
+<li>
+  <span class="content">
+    <p> <b> Source : </b> <%= offerride.source %> </p>
+  </span>
+  <span class="content">
+    <p> <b> Destination : </b> <%= offerride.destination %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Date of ride : </b> <%= offerride.date %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Departure time : </b> <%= offerride.time %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Cost for Each person : </b> Rs. <%= offerride.cost %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Total seats : </b> <%= offerride.totalseats %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Seats left : </b> <%= offerride.seatsleft %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Contact : </b> <%= offerride.contactnum %> </p>
+  </span> 
+  <% if current_user?(offerride.user) %>
+    <%= link_to "Close this ride?", offerride, method: :delete,
+                    data: { confirm: "You sure?" }%> | 
+    <%= link_to "View details", offerrides_details_path(id: offerride.id) %> | 
+    <%= link_to "Edit", edit_offerride_path(offerride.id) %>
+  <% else %>
+    <% if already_booked_seat(offerride, current_user) %>
+      <%= link_to "Book more seats?", bookrides_bookmore_path(source: offerride.source, destination: offerride.destination, date: offerride.date, time: offerride.time, seatsleft: offerride.seatsleft, id: current_user_book_id(offerride))%>
+    <% else %> 
+      <%= link_to "Book this ride", new_bookride_path(source: offerride.source, destination: offerride.destination, date: offerride.date, time: offerride.time, seatsleft: offerride.seatsleft, offerrideid: offerride.id) %>
+    <% end %>
+  <% end %> 
+</li>

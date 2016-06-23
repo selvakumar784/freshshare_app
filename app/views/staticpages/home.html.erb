@@ -1,0 +1,15 @@
+<% if signed_in? %>
+      <div class="span8 moveleft">
+        <h3> Upcoming Rides </h3>
+        <ol class="offerrides">
+          <%= render @offerrides %> 
+          <%= render @bookrides %> 
+        </ol>
+      </div>
+<% else %>
+  <div class="center hero-unit">
+    <h1>Welcome to the Freshshare </h1>
+    <%= link_to "Sign up now!", signup_path,
+                  class: "btn btn-large btn-primary" %>
+  </div>
+<% end %>

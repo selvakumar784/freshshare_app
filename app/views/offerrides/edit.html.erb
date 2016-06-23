@@ -1,0 +1,42 @@
+<h1>Update a Ride</h1>
+
+<%= form_for (@offerride) do |f| %>
+  <%= render 'shared/error_messages', object: f.object %>
+  <%= f.label :source %>
+  <% if @booking_flag %>
+    <%= f.text_field :source %><br>
+  <% else %>
+    <%= f.text_field :source, readonly: true %><br>
+  <% end %>
+  <%= f.label :destination %>
+  <% if @booking_flag %>
+    <%= f.text_field :destination %><br>
+  <% else %>
+    <%= f.text_field :destination, readonly: true %><br>
+  <% end %>
+  <%= f.label :date %>
+  <% if @booking_flag %>
+    <%= f.text_field :date, type: 'date' %><br>
+  <% else %>
+    <%= f.text_field :date, type: 'date', readonly: true %><br>
+  <% end %>
+  <%= f.label :time %>
+  <% if @booking_flag %>
+  <%= f.text_field :time, type: 'time' %><br>
+  <% else %>
+  <%= f.text_field :time, type: 'time', readonly: true %><br>
+  <% end %>
+  <%= f.label :cost %>
+  <%= f.number_field :cost, :step => 'any' %><br>
+  <%= f.label :totalseats %>
+  <%= f.number_field :totalseats %><br>
+  <%= f.label :contactnum %>
+  <% if @booking_flag %>
+  <%= f.number_field :contactnum %><br>
+  <% else %>
+  <%= f.number_field :contactnum, readonly: true %><br>
+  <% end %>
+  <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>
+<% end %>
+
+<%= link_to "Cancel", offerrides_path %>

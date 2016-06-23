@@ -1,0 +1,29 @@
+<li>
+  <span class="content">
+    <p> <b> Source : </b> <%= bookride.source %> </p>
+  </span>
+  <span class="content">
+    <p> <b> Destination : </b> <%= bookride.destination %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Date of ride : </b> <%= bookride.date %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Departure time : </b> <%= bookride.time %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Total cost : </b> Rs. <%= bookride.totalcost %> </p>
+  </span> 
+  <span class="content">
+    <p> <b> Total seats : </b> <%= bookride.numseats %> </p>
+  </span>
+  <span class="content">
+    <p> <b> Rider's contact : </b> <%= bookride.offerride.contactnum %> </p>
+  </span> 
+  <% if current_user?(bookride.user) %>
+    <%= link_to "Cancel few seats?", bookrides_cancel_path(source: bookride.source, destination: bookride.destination, date: bookride.date, time: bookride.time, numseats: bookride.numseats, totalcost: bookride.totalcost, id: bookride.id) %> | 
+    <%= link_to "Book more seats?", bookrides_bookmore_path(source: bookride.source, destination: bookride.destination, date: bookride.date, time: bookride.time, seatsleft: bookride.offerride.seatsleft, id: bookride.id)%> | 
+    <%= link_to "Cancel Booking?", bookride, method: :delete,
+                    data: { confirm: "You sure?" }%> 
+  <% end %> 
+</li>

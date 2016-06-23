@@ -1,0 +1,17 @@
+<% provide(:title, @user.name) %>
+  <aside class="span4">
+    <section>
+      <h1>
+        <%= @user.name %> 
+      </h1>
+    </section>
+  </aside>
+  <div class="span8">
+    <% if @user.offerrides.any? %>
+      <h3>Your offerred rides (<%= @user.offerrides.count %>)</h3> 
+      <ol class="offerrides">
+        <%= render @offerrides %> 
+      </ol>
+      <%= will_paginate @offerrides %>
+    <% end %>
+  </div>
