@@ -6,7 +6,6 @@ class OfferridesController < ApplicationController
   end
 
   def create
-    binding.pry
     @offerride = current_user.offerrides.build(params[:offerride])
     if @offerride.user.offerrides.where(:date => params[:offerride][:date]).length > 0
       flash.now[:error] = "You already offered a ride on this day. Currently we allow only one offer ride per day."

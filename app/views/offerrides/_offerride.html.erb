@@ -26,7 +26,7 @@
   <% if current_user?(offerride.user) %>
     <%= link_to "Close this ride?", offerride, method: :delete,
                     data: { confirm: "You sure?" }%> | 
-    <%= link_to "View details", offerrides_details_path(id: offerride.id) %> | 
+    <%= link_to "View bookings", offerrides_details_path(id: offerride.id) %> | 
     <%= link_to "Edit", edit_offerride_path(offerride.id) %>
   <% else %>
     <% if already_booked_seat(offerride, current_user) %>

@@ -9,7 +9,6 @@ class GetridesController < ApplicationController
     else
       @matchrider = User.find_by_name(params[:getrides][:name])
       @offerrides = @matchrider ? @matchrider.offerrides.where('date >= ?', Date.today) : []
-      binding.pry
     end
     if @offerrides.length == 0
       flash.now[:sucess] = "Couldn't find a match. Please try different search criteria" 
