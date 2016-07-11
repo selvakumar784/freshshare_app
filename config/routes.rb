@@ -1,18 +1,18 @@
 RideApp::Application.routes.draw do
 
   resources :users
-
   resources :sessions, only: [:new, :create, :destroy]
-  match '/offerrides/details', to: 'offerrides#details', via: :get
-  resources :offerrides
-  resources :getrides
-  match '/bookrides/cancel', to: 'bookrides#cancel', via: :get
-  match '/bookrides/bookmore', to: 'bookrides#bookmore'
-  match '/bookrides/bookmoreupdate', to: 'bookrides#bookmoreupdate'
-  resources :bookrides
+  match '/offerrides/search', to: 'offerrides#search', via: :get
+  resources :offerrides do
+    resources :bookrides, only: [:new, :create]
+  end
+  resources :bookrides, only: [:show, :edit, :update, :index, :destroy]
 
-  get 'signup' => "users#new"
+  resources :password_resets
+
   root to: 'staticpages#home'
+  get "password_resets/new"
+  get 'signup' => "users#new"
   match '/signup', to: 'users#new'
   match '/signin', to:'sessions#new'
   match '/signout', to: 'sessions#destroy', via: :delete

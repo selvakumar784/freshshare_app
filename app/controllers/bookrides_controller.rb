@@ -1,138 +1,124 @@
 class BookridesController < ApplicationController
   before_filter :signed_in_user, only: [:create, :destroy, :new, :edit, :update]
+  before_filter :find_book, only: [:edit, :show, :destroy, :cancel]
 
   def new
-    @source = params[:source]
-    @dest = params[:destination]
-    @date = params[:date]
-    @time = params[:time]
-    @seatsleft = params[:seatsleft]
-    @offerrideid = params[:offerrideid]
     @bookride = Bookride.new
+    @offerride= Offerride.find_by_id(params[:offerride_id])
   end
 
   def create
     params_filter = params[:bookride].except(:seatsleft)
-    if params_filter[:date] == Date.today and (params_filter[:date] + " " + params_filter[:time] > (Time.now - 2.hours))
-      flash[:error] = "Time has already passed to book a seat for this ride."
-      redirect_to bookrides_path(params[:bookride])
-      return
-    end
-    numseats = params_filter[:numseats].to_i
-    @currentride = Offerride.find_by_id(params[:offerrideid])
-    seatsleft = (@currentride.seatsleft).to_i
-    if validate_seats numseats, seatsleft
-      @bookride = current_user.bookrides.build(params_filter)
-      if @bookride.user.bookrides.where(:date => params_filter[:date]).length > 0
-        flash.now[:error] = "You already booked a ride for this day. Currently we allow only book per day"
-        redirect_to new_bookride_path(params[:bookride])
-      elsif @bookride.user.offerrides.where(:date => params_filter[:date]).length > 0
-        flash[:error] = "You already offered a ride on this day. You cannot book and ride on the same day."
-        redirect_to bookrides_path
-      else
-        @bookride.offerride_id = @currentride.id
-        @bookride.totalcost = numseats.to_i * @currentride.cost
-        if @bookride.save
-          flash[:success] = "Successfully Booked"
-          remseats = @currentride.seatsleft - numseats.to_i
-          #@currentride.update_attribute(:seatsleft, remseats)
-          redirect_to @bookride
-        else
-          redirect_to new_bookride_path(params[:bookride])
-        end
-      end
-    else
-      flash[:failure] = "Requested seats cannot be booked"
-      redirect_to new_bookride_path(params[:bookride])
-    end
-  end
+    @bookride = current_user.bookrides.build(params_filter)
+    @offerride = Offerride.find_by_id(params[:offerride_id])
+    @bookride.assign_params_from_controller(params_filter, @offerride)
+    num_seats = params_filter[:numseats].to_i
+    seats_left = (@offerride.seatsleft).to_i
 
-  def bookmore
-    @seatsleft = params[:seatsleft]
-    @bookride = Bookride.find_by_id(params[:id])
-  end
-
-  def bookmoreupdate
-    numseats = params[:bookride][:numseats].to_i
-    @bookride = Bookride.find_by_id(params[:id])
-    @currentride = @bookride.offerride
-    seatsleft = params[:seatsleft].to_i
-    if validate_seats numseats, seatsleft
-      prevcost = @bookride.totalcost
-      prevseats = @bookride.numseats
-      newtotalcost = prevcost + (numseats * @currentride.cost)
-      newnumseats = prevseats + numseats
-      @bookride.update_attribute(:numseats, newnumseats)
-      @bookride.update_attribute(:totalcost, newtotalcost)
-      if @bookride.save
-        flash[:success] = "Successfully Booked"
-        remseats = @currentride.seatsleft - numseats
-        @currentride.update_attribute(:seatsleft, remseats)
-        redirect_to @bookride
-      else
-        redirect_to new_bookride_path(params[:bookride])
-      end
+    @bookride.offerride_id = @offerride.id
+    @bookride.totalcost = num_seats * @offerride.cost
+    @offerride.rem_seats = seats_left - num_seats
+    if @bookride.save
+      flash[:success] = "Successfully Booked"
+      redirect_to @bookride
     else
-      flash[:failure] = "Requested seats cannot be booked"
-      redirect_to new_bookride_path(params[:bookride])
+      render 'new'
     end
   end
 
   def index
     @bookrides = current_user.bookrides.paginate(page: params[:page])
-    flash.now[:notice] = "No bookings found" if @bookrides.length == 0 
+    if @bookrides.length == 0 
+      flash.now[:notice] = "No bookings found"
+    else
+      render "index"
+    end
   end
 
   def show
-    @bookride = Bookride.find(params[:id])
+  end
+
+  def edit
+    @bookride.cancel_or_book_flag = params[:cancel_book_flag].to_i
   end
 
   def destroy
     @bookride = Bookride.find(params[:id])
     if @bookride.present?
-      @currentride = Offerride.find_by_id(@bookride.offerride_id)
-      seatsleft = @currentride.seatsleft.to_i
-      numseats = @bookride.numseats.to_i
-      newseats = seatsleft + numseats
-      @currentride.update_attributes(:seatsleft => newseats)
+      @offerride = Offerride.find_by_id(@bookride.offerride_id)
+      @offerride.assign_params_from_controller(@offerride,
+                                                 @offerride.user_id)
+      seats_left = @offerride.seatsleft.to_i
+      num_seats = @bookride.numseats.to_i
+      @offerride.rem_seats = seats_left + num_seats
+      @offerride.seats_modify(@offerride.rem_seats, num_seats)
       @bookride.destroy
     end
     redirect_to bookrides_path
   end
 
   def cancel
-    @bookride = Bookride.find(params[:id])
   end
 
   def update
-    @currentride = Bookride.find_by_id(params[:id])
-    @offerride = Offerride.find_by_id(@currentride.offerride_id)
-    seatsbooked = @currentride.numseats.to_i
-    seatscanceled = params[:bookride][:numseatstocancel].to_i
+    cancel_or_book_flag = params[:bookride][:cancel_or_book_flag].to_i
+    @bookride = Bookride.find_by_id(params[:id])
+    @offerride = @bookride.offerride
+    @bookride.assign_params_from_controller(params[:bookride], @offerride)
+    @offerride.assign_params_from_controller(@offerride, 
+                                                 @offerride.user_id)
 
-    if seatscanceled < 0
-      flash[:error] = "seats to cancel cannot be negative"
-      redirect_to bookrides_path
-    elsif seatscanceled > seatsbooked
-      flash[:error] = "you can not cancel seats more than you booked"
-      redirect_to bookrides_path
-    elsif seatscanceled == seatsbooked
-      destroy
+    if cancel_or_book_flag == 1
+      seats_booked = @bookride.numseats.to_i
+      seats_canceled = params[:bookride][:numseatstocancel].to_i
+
+      if seats_canceled == seats_booked
+        destroy
+      else
+        updated_seats = seats_booked - seats_canceled
+        @offerride.rem_seats =  @offerride.seatsleft + seats_canceled
+        seats_cost = @bookride.totalcost.to_f
+        refund = seats_canceled * @bookride.offerride.cost
+        updated_cost = seats_cost - refund
+        if @bookride.update_attributes(numseats: updated_seats,
+                                       totalcost: updated_cost)
+          redirect_to bookrides_path
+        else
+          @bookride[:numseats] = seats_booked
+          @cancel_or_book_flag = 1  
+          render "edit"
+        end
+      end
     else
-      updatedseats = seatsbooked - seatscanceled
-      seatsleft =  @offerride.seatsleft + seatscanceled
-      seatscost = @currentride.totalcost.to_f
-      refund = seatscanceled * @currentride.offerride.cost
-      updatedcost = seatscost - refund
-      @currentride.update_attributes(:numseats => updatedseats)
-      @currentride.update_attributes(:totalcost => updatedcost)
-      @offerride.update_attributes(:seatsleft => seatsleft)
-      redirect_to bookrides_path
+      num_seats = params[:bookride][:numseats].to_i
+      seats_left = @offerride[:seatsleft].to_i
+      prev_cost = @bookride.totalcost
+      prev_seats = @bookride.numseats
+      new_total_cost = prev_cost + (num_seats * @offerride.cost)
+      new_num_seats = prev_seats + num_seats
+      binding.pry
+      @offerride.rem_seats = @offerride.seatsleft - num_seats
+      if @bookride.update_attributes(numseats: new_num_seats,
+                                     totalcost: new_total_cost)
+          flash[:success] = "Successfully Booked"
+          redirect_to @bookride
+      else
+        @bookride.offerride[:seatsleft] = seats_left
+        @cancel_or_book_flag = 2
+        render "edit"
+      end
     end
   end
+
+  protected
+    def find_book
+      if params[:flag] == "1"
+        @bookride = Bookride.list_bookings(params[:id])
+        @book_details = 1
+        flash.now[:notice] = "No bookings done yet." if @bookride.length == 0
+      else
+        @bookride = Bookride.find(params[:id])
+      end
+    end
 end
 
-private
-  def validate_seats numseats, seatsleft
-    return numseats > seatsleft ? false : true
-  end

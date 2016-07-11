@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_filter :signed_in_user, only: [:index, :edit, :update, :destroy, :show]
+  before_filter :load_user, only: [:edit, :update, :destroy, :show]
 
   def new
     @user = User.new
@@ -8,6 +9,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(params[:user])
     if @user.save
+      sign_in @user
       flash[:sucess] = "Welcome to the Ride App!"
       redirect_to @user
     else
@@ -16,11 +18,9 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = User.find(params[:id])
   end
 
   def update
-     @user = User.find(params[:id])
     if @user.update_attributes(params[:user])
       flash[:success] = "Profile updated"
       redirect_to @user
@@ -30,14 +30,17 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    User.find(params[:id]).destroy
+    @user.destroy
     flash[:success] = "User destroyed."
     redirect_to users_path
   end
 
   def show
-    @user = User.find(params[:id])
     @offerrides = @user.offerrides.paginate(page: params[:page])
   end
 
+  protected
+    def load_user
+      @user = User.find(params[:id])
+    end
 end

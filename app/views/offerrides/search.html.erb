@@ -1,0 +1,18 @@
+<h1>Get a Ride</h1>
+
+<h3> Search by Journey </h3>
+<%= form_for :offerrides, url: offerrides_search_path, :method => 'get' do |f| %>
+  <%= f.label :source %>
+  <%= f.text_field :source, value: "" %><br>
+  <%= f.label :destination %>
+  <%= f.text_field :destination, value: "" %><br>
+
+  <h3> Search by Rider name </h3>
+
+  <%= f.label :name %>
+  <%= f.text_field :name, value: "" %><br><br><br>
+
+  <%= f.submit "Search", class: "btn btn-large btn-primary" %><br><br>
+<% end %>
+
+<%= link_to "Cancel", root_path %>

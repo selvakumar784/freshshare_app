@@ -1,18 +1,18 @@
 <h1>Book a Ride</h1>
-<%= form_for (@bookride), :url => { :action => 'create', :offerrideid => @offerrideid } do |f| %>
+<%= form_for (@bookride), :url => { :action => 'create', offerride_id: @offerride.id } do |f| %>
   <%= render 'shared/error_messages', object: f.object %>
   <%= f.label :source %>
-  <%= f.text_field :source, value: @source, readonly: true%><br>
+  <%= f.text_field :source, value: @offerride.source, readonly: true%><br>
   <%= f.label :destination %>
-  <%= f.text_field :destination, value: @dest, readonly: true %><br>
+  <%= f.text_field :destination, value: @offerride.destination, readonly: true %><br>
   <%= f.label :date %>
-  <%= f.text_field :date, type: 'date', value: @date, readonly: true %><br>
+  <%= f.text_field :date, type: 'date', value: @offerride.date, readonly: true %><br>
   <%= f.label :time %>
-  <%= f.text_field :time, type: 'time', value: @time, readonly: true %><br>
+  <%= f.text_field :time, type: 'time', value: @offerride.time, readonly: true %><br>
   <%= f.label :seatsleft %>
-  <%= f.number_field :seatsleft, value: @seatsleft, readonly: true %><br>
+  <%= f.number_field :seatsleft, value: @offerride.seatsleft, readonly: true %><br>
   <%= f.label :seatsrequired%>
   <%= f.number_field :numseats %><br>
   <%= f.submit "Book", class: "btn btn-large btn-primary" %>
 <% end %>
-<%= link_to "Cancel", new_getride_path %>
+<%= link_to "Cancel", offerrides_search_path %>

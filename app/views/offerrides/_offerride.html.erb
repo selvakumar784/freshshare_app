@@ -26,13 +26,13 @@
   <% if current_user?(offerride.user) %>
     <%= link_to "Close this ride?", offerride, method: :delete,
                     data: { confirm: "You sure?" }%> | 
-    <%= link_to "View bookings", offerrides_details_path(id: offerride.id) %> | 
+    <%= link_to "View bookings", bookride_path(id: offerride.id, flag: 1) %> | 
     <%= link_to "Edit", edit_offerride_path(offerride.id) %>
   <% else %>
     <% if already_booked_seat(offerride, current_user) %>
-      <%= link_to "Book more seats?", bookrides_bookmore_path(source: offerride.source, destination: offerride.destination, date: offerride.date, time: offerride.time, seatsleft: offerride.seatsleft, id: current_user_book_id(offerride))%>
+      <%= link_to "Book more seats?", edit_bookride_path(current_user_book_id(offerride), flag: 2)%>
     <% else %> 
-      <%= link_to "Book this ride", new_bookride_path(source: offerride.source, destination: offerride.destination, date: offerride.date, time: offerride.time, seatsleft: offerride.seatsleft, offerrideid: offerride.id) %>
+      <%= link_to "Book this ride", new_offerride_bookride_path(offerride.id) %>
     <% end %>
   <% end %> 
 </li>

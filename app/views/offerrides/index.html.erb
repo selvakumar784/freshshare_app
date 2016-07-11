@@ -1,6 +1,10 @@
 <div class="span8">
   <% if @offerrides.any? %>
-    <h3>Your offered rides (<%= @offerrides.count %>)</h3> 
+    <% if @search_flag == 1 %>
+      <h3>Your matched rides (<%= @offerrides.count %>)</h3> 
+    <% else %>
+      <h3>Your offered rides (<%= @offerrides.count %>)</h3> 
+    <% end %>
     <ol class="offerrides">
       <%= render @offerrides %> 
     </ol>

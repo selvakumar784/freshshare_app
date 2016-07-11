@@ -1,0 +1,27 @@
+class SessionsController < ApplicationController
+  def new
+    @user = User.new
+  end
+
+  def create
+    session_params = params[:session]
+    user = User.find_by_email(session_params[:email])
+    if user && user.authenticate(session_params[:password])
+      sign_in user
+      if params[:remember_me]
+        cookies.permanent[:remember_token] = user.remember_token
+      else
+        cookies[:remember_token] = user.remember_token
+      end
+      redirect_to root_path, :notice => "Signed in!"
+    else
+      flash.now[:alert] = "Invalid email or password"
+      render "new"
+    end
+  end
+
+  def destroy
+    sign_out if signed_in?
+    redirect_to root_path
+  end
+end
