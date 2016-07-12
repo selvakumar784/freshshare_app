@@ -1,7 +1,7 @@
 class Offerride < ActiveRecord::Base
   attr_accessible :cost, :date, :destination, :source, :time, :user_id, 
-                  :seatsleft, :totalseats, :contactnum
-  attr_accessor :rem_seats
+                  :totalseats, :contactnum
+
   belongs_to :user
   has_many :bookrides, dependent: :destroy
 
@@ -31,7 +31,7 @@ class Offerride < ActiveRecord::Base
   validate :offer_exists_on_date 
   validate :book_exists_on_date
   validate :seats_check
-  before_create :set_seats_left
+  before_create :validate_seats
 
   def downcase_fields
     self.source.downcase!
@@ -39,33 +39,25 @@ class Offerride < ActiveRecord::Base
   end
 
   def validate_date
-    if Date.parse(date) < Date.today
-      errors.add(:date, " can't be in the past")
-    end
+    errors.add(:base, " can't be in the past") if Date.parse(date) < Date.today
   end
 
   def validate_time
-    if Date.parse(date) == Date.today && Time.parse(time) < Time.now
-      errors.add(:time, "Time can't be in the past")
-    end
+    errors.add(:base, "Time can't be in the past") if Date.parse(date) == Date.today &&
+                                                      Time.parse(time) < Time.now
   end
 
   def validate_src_dest
-    if source == destination
-      errors.add(:time, "Source and destination can't be same")
-    end
+    errors.add(:base, "Source and destination can't be same") if source == destination
   end
 
-  def set_seats_left
+  def validate_seats
     if self.totalseats <= 0
-     errors.add(:seatsleft, "cannot be negative or zero")
-    else
-      self.seatsleft = self.totalseats
+     errors.add(:base, "cannot be negative or zero")
     end
   end
 
   def assign_params_from_controller(params, currrent_user_id)
-    binding.pry
     @offer_ride_params = params
     @user_id = currrent_user_id
   end
@@ -76,10 +68,9 @@ class Offerride < ActiveRecord::Base
   end
 
   def offer_exists_on_date
-    binding.pry
     if Offerride.entry_exists(@offer_ride_params[:date], @user_id).length > 0 &&
        @offer_ride_params[:id] == nil
-      errors.add(:date, "You already offered a ride on this day. 
+      errors.add(:base, "You already offered a ride on this day. 
                         Currently we allow only one offer ride per day.")
     end
   end
@@ -87,7 +78,7 @@ class Offerride < ActiveRecord::Base
   def book_exists_on_date
     if Bookride.entry_exists(@offer_ride_params[:date], 
                              @user_id).length > 0
-      errors.add(:date, "You already booked a ride on this day. 
+      errors.add(:base, "You already booked a ride on this day. 
                          Currently we allow only one booking ride per day.")
     end
   end
@@ -96,7 +87,7 @@ class Offerride < ActiveRecord::Base
     @bookrides = Bookride.find_by_offerride_id(@offer_ride_params[:id])
     if @bookrides != nil
       if @newtotalseats.to_i < @alreadybooked.to_i
-        errors.add(:seatsleft, "Seats cannnot be reduced to this number")
+        errors.add(:base, "Seats cannnot be reduced to this number")
       end
     end
   end

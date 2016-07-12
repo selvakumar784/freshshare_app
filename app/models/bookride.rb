@@ -12,10 +12,6 @@ class Bookride < ActiveRecord::Base
 
   validate :seats_check
 
-  after_create :decrease_seats_left
-  # after_destroy :increase_seats_left
-  after_update :modify_seats_left
-
   scope :list_rides, -> (current_user) {
     where(user_id: current_user.id).where('date >= ?', Date.today)
   }
@@ -36,7 +32,7 @@ class Bookride < ActiveRecord::Base
   def offer_exists_on_date
     if Offerride.entry_exists(@book_ride_params[:date],
                               @book_ride_params[:user_id]).length > 0
-      errors.add(:date, "You already offered a ride on this day. Currently we 
+      errors.add(:base, "You already offered a ride on this day. Currently we 
                          allow only one offer ride per day.")
     end
   end
@@ -44,7 +40,7 @@ class Bookride < ActiveRecord::Base
   def book_exists_on_date
     if Bookride.entry_exists(@book_ride_params[:date],
                              @book_ride_params[:user_id]).length > 0
-      errors.add(:date, "You already booked a ride on this day. Currently we 
+      errors.add(:base, "You already booked a ride on this day. Currently we 
                          allow only one booking ride per day.")
     end
   end
@@ -57,8 +53,9 @@ class Bookride < ActiveRecord::Base
   end
 
   def validate_seats
-    if @book_ride_params[:numseats].to_i > @offerride[:seatsleft].to_i
-      errors.add(:numseats, "Requested seats cannnot be booked")
+    if @book_ride_params[:numseats].to_i > (@offerride.totalseats - 
+                                            @offerride.bookrides.sum(:numseats))
+      errors.add(:base, "Requested seats cannnot be booked")
     end
   end
 
@@ -70,21 +67,4 @@ class Bookride < ActiveRecord::Base
       errors.add(:base, "you can not cancel seats more than you booked")
     end
   end
-
-  protected
-    def decrease_seats_left
-      binding.pry
-      @offerride.update_attribute(:seatsleft, @offerride.rem_seats)
-    end
-
-    def increase_seats_left
-      binding.pry
-      @offerride.update_attribute(:seatsleft, @offerride.rem_seats)
-    end
-
-    def modify_seats_left
-      binding.pry
-      @offerride.update_attributes(seatsleft: @offerride.rem_seats)
-    end
-
 end

@@ -18,7 +18,7 @@
     <p> <b> Total seats : </b> <%= offerride.totalseats %> </p>
   </span> 
   <span class="content">
-    <p> <b> Seats left : </b> <%= offerride.seatsleft %> </p>
+    <p> <b> Seats left : </b> <%= offerride.totalseats - offerride.bookrides.sum(:numseats) %> </p>
   </span> 
   <span class="content">
     <p> <b> Contact : </b> <%= offerride.contactnum %> </p>

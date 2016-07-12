@@ -10,6 +10,7 @@ class OfferridesController < ApplicationController
     @offerride = current_user.offerrides.build(params[:offerride])
     @offerride.assign_params_from_controller(params[:offerride], current_user.id)
     if @offerride.save
+      binding.pry
       redirect_to @offerride
       flash.now[:success] = "You offered a ride."
     else
@@ -21,23 +22,21 @@ class OfferridesController < ApplicationController
   end
 
   def index
-     @offerrides = current_user.offerrides.paginate(page: params[:page])
-     @search_flag = 0
-     flash.now[:notice] = "You haven't offered a ride" if @offerrides.length == 0 
+    @offerrides = current_user.offerrides.paginate(page: params[:page])
+    @search_flag = 0
+    flash.now[:notice] = "You haven't offered a ride" if @offerrides.length == 0 
   end
 
   def edit
   end
 
   def update
-    new_tota_lseats = params[:offerride][:totalseats].to_i
+    new_total_seats = params[:offerride][:totalseats].to_i
     already_booked = @offerride.bookrides.sum(:numseats)
     @offerride.assign_params_from_controller(@offerride, @offerride.user_id)
     @offerride.seats_modify(new_total_seats, already_booked)
-    updated_seats = new_total_seats - already_booked
 
-    if @offerride.update_attributes(:totalseats => new_total_seats,
-                                    :seatsleft => updated_seats)
+    if @offerride.update_attributes(:totalseats => new_total_seats)
       flash.now[:success] = "Ride details updated"
       redirect_to @offerride
     else
@@ -76,7 +75,7 @@ class OfferridesController < ApplicationController
 
   def destroy
     if @offerride.present?
-      if @offerride.seatsleft != @offerride.totalseats && 
+      if @offerride.bookrides.sum(:numseats) != 0 && 
                                  @offerride.date.to_date > Date.today
         flash[:error] = "This ride cannot be closed now. 
                         There are bookings on this."

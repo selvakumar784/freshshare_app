@@ -13,11 +13,9 @@ class BookridesController < ApplicationController
     @offerride = Offerride.find_by_id(params[:offerride_id])
     @bookride.assign_params_from_controller(params_filter, @offerride)
     num_seats = params_filter[:numseats].to_i
-    seats_left = (@offerride.seatsleft).to_i
 
     @bookride.offerride_id = @offerride.id
     @bookride.totalcost = num_seats * @offerride.cost
-    @offerride.rem_seats = seats_left - num_seats
     if @bookride.save
       flash[:success] = "Successfully Booked"
       redirect_to @bookride
@@ -40,6 +38,7 @@ class BookridesController < ApplicationController
 
   def edit
     @bookride.cancel_or_book_flag = params[:cancel_book_flag].to_i
+    @offerride = Offerride.find_by_id(@bookride.offerride_id)
   end
 
   def destroy
@@ -48,10 +47,8 @@ class BookridesController < ApplicationController
       @offerride = Offerride.find_by_id(@bookride.offerride_id)
       @offerride.assign_params_from_controller(@offerride,
                                                  @offerride.user_id)
-      seats_left = @offerride.seatsleft.to_i
       num_seats = @bookride.numseats.to_i
-      @offerride.rem_seats = seats_left + num_seats
-      @offerride.seats_modify(@offerride.rem_seats, num_seats)
+      rem_seats = seats_left + num_seats
       @bookride.destroy
     end
     redirect_to bookrides_path
@@ -66,7 +63,7 @@ class BookridesController < ApplicationController
     @offerride = @bookride.offerride
     @bookride.assign_params_from_controller(params[:bookride], @offerride)
     @offerride.assign_params_from_controller(@offerride, 
-                                                 @offerride.user_id)
+                                             @offerride.user_id)
 
     if cancel_or_book_flag == 1
       seats_booked = @bookride.numseats.to_i
@@ -76,7 +73,6 @@ class BookridesController < ApplicationController
         destroy
       else
         updated_seats = seats_booked - seats_canceled
-        @offerride.rem_seats =  @offerride.seatsleft + seats_canceled
         seats_cost = @bookride.totalcost.to_f
         refund = seats_canceled * @bookride.offerride.cost
         updated_cost = seats_cost - refund
@@ -91,19 +87,15 @@ class BookridesController < ApplicationController
       end
     else
       num_seats = params[:bookride][:numseats].to_i
-      seats_left = @offerride[:seatsleft].to_i
       prev_cost = @bookride.totalcost
       prev_seats = @bookride.numseats
       new_total_cost = prev_cost + (num_seats * @offerride.cost)
       new_num_seats = prev_seats + num_seats
-      binding.pry
-      @offerride.rem_seats = @offerride.seatsleft - num_seats
       if @bookride.update_attributes(numseats: new_num_seats,
                                      totalcost: new_total_cost)
           flash[:success] = "Successfully Booked"
           redirect_to @bookride
       else
-        @bookride.offerride[:seatsleft] = seats_left
         @cancel_or_book_flag = 2
         render "edit"
       end

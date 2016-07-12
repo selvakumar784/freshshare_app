@@ -10,7 +10,7 @@
   <%= f.label :time %>
   <%= f.text_field :time, type: 'time', value: @offerride.time, readonly: true %><br>
   <%= f.label :seatsleft %>
-  <%= f.number_field :seatsleft, value: @offerride.seatsleft, readonly: true %><br>
+  <%= f.number_field :seatsleft, value: @offerride.totalseats - @offerride.bookrides.sum(:numseats), readonly: true %><br>
   <%= f.label :seatsrequired%>
   <%= f.number_field :numseats %><br>
   <%= f.submit "Book", class: "btn btn-large btn-primary" %>

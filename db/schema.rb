@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160705114106) do
+ActiveRecord::Schema.define(:version => 20160712090405) do
 
   create_table "bookrides", :force => true do |t|
     t.string   "source"
@@ -36,7 +36,6 @@ ActiveRecord::Schema.define(:version => 20160705114106) do
     t.datetime "updated_at",  :null => false
     t.integer  "user_id"
     t.integer  "totalseats"
-    t.integer  "seatsleft"
     t.string   "contactnum"
   end
 

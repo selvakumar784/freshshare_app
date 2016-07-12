@@ -18,7 +18,7 @@
     <%= f.hidden_field :cancel_or_book_flag, value: 1 %>
   <% elsif @bookride.cancel_or_book_flag == 2 %>
     <%= f.label :seatsleft %>
-    <%= f.number_field :seatsleft, value: @bookride.offerride.seatsleft, readonly: true %>
+    <%= f.number_field :seatsleft, value: @offerride.totalseats - @offerride.bookrides.sum(:numseats), readonly: true %>
     <%= f.label :SeatsRequired %>
     <%= f.number_field :numseats, value: '' %><br>
     <%= f.hidden_field :cancel_or_book_flag, value: 2 %>
