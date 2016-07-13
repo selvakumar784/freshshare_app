@@ -28,10 +28,10 @@ class Offerride < ActiveRecord::Base
   before_save :validate_time
   before_save :validate_src_dest
   before_save :downcase_fields
+  before_create :validate_seats
   validate :offer_exists_on_date 
   validate :book_exists_on_date
   validate :seats_check
-  before_create :validate_seats
 
   def downcase_fields
     self.source.downcase!
@@ -39,21 +39,30 @@ class Offerride < ActiveRecord::Base
   end
 
   def validate_date
-    errors.add(:base, " can't be in the past") if Date.parse(date) < Date.today
+    if Date.parse(date) < Date.today
+      errors.add(:base, " can't be in the past") 
+      return false
+    end
   end
 
   def validate_time
-    errors.add(:base, "Time can't be in the past") if Date.parse(date) == Date.today &&
-                                                      Time.parse(time) < Time.now
+    if Date.parse(date) == Date.today && Time.parse(time) < Time.now
+      errors.add(:base, "Time can't be in the past") 
+      return false
+    end
   end
 
   def validate_src_dest
-    errors.add(:base, "Source and destination can't be same") if source == destination
+    if source == destination
+      errors.add(:base, "Source and destination can't be same")
+      return false
+    end
   end
 
   def validate_seats
     if self.totalseats <= 0
-     errors.add(:base, "cannot be negative or zero")
+      errors.add(:base, "cannot be negative or zero")
+      return false
     end
   end
 

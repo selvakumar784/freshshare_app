@@ -10,7 +10,6 @@ class OfferridesController < ApplicationController
     @offerride = current_user.offerrides.build(params[:offerride])
     @offerride.assign_params_from_controller(params[:offerride], current_user.id)
     if @offerride.save
-      binding.pry
       redirect_to @offerride
       flash.now[:success] = "You offered a ride."
     else

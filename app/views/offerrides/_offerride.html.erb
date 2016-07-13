@@ -30,7 +30,7 @@
     <%= link_to "Edit", edit_offerride_path(offerride.id) %>
   <% else %>
     <% if already_booked_seat(offerride, current_user) %>
-      <%= link_to "Book more seats?", edit_bookride_path(current_user_book_id(offerride), flag: 2)%>
+      <%= link_to "Book more seats?", edit_bookride_path(current_user_book_id(offerride), cancel_book_flag: 2)%>
     <% else %> 
       <%= link_to "Book this ride", new_offerride_bookride_path(offerride.id) %>
     <% end %>

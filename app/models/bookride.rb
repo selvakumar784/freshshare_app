@@ -7,8 +7,8 @@ class Bookride < ActiveRecord::Base
 
   before_create :time_passed
   before_save :validate_seats
-  before_create :offer_exists_on_date
-  before_create :book_exists_on_date
+  validate :offer_exists_on_date
+  validate :book_exists_on_date
 
   validate :seats_check
 
@@ -21,11 +21,13 @@ class Bookride < ActiveRecord::Base
   }
 
   scope :entry_exists, -> (date, user_id) {
+    binding.pry
     where(user_id: user_id).where(date: date)
   }
 
   def assign_params_from_controller(params, offerride)
     @book_ride_params = params
+    binding.pry
     @offerride = offerride
   end
 
@@ -49,6 +51,7 @@ class Bookride < ActiveRecord::Base
     if @book_ride_params[:date] == Date.today and (@book_ride_params[:date] + 
       " " + @book_ride_params[:time] > (Time.now - 2.hours))
       errors.add(:base, "Time has already passed to book a seat for this ride.")
+      return false
     end
   end
 
@@ -56,6 +59,7 @@ class Bookride < ActiveRecord::Base
     if @book_ride_params[:numseats].to_i > (@offerride.totalseats - 
                                             @offerride.bookrides.sum(:numseats))
       errors.add(:base, "Requested seats cannnot be booked")
+      return false
     end
   end
 

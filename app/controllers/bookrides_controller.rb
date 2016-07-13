@@ -11,7 +11,7 @@ class BookridesController < ApplicationController
     params_filter = params[:bookride].except(:seatsleft)
     @bookride = current_user.bookrides.build(params_filter)
     @offerride = Offerride.find_by_id(params[:offerride_id])
-    @bookride.assign_params_from_controller(params_filter, @offerride)
+    @bookride.assign_params_from_controller(@bookride, @offerride)
     num_seats = params_filter[:numseats].to_i
 
     @bookride.offerride_id = @offerride.id
@@ -48,7 +48,6 @@ class BookridesController < ApplicationController
       @offerride.assign_params_from_controller(@offerride,
                                                  @offerride.user_id)
       num_seats = @bookride.numseats.to_i
-      rem_seats = seats_left + num_seats
       @bookride.destroy
     end
     redirect_to bookrides_path
@@ -81,7 +80,7 @@ class BookridesController < ApplicationController
           redirect_to bookrides_path
         else
           @bookride[:numseats] = seats_booked
-          @cancel_or_book_flag = 1  
+          @bookride.cancel_or_book_flag = 1
           render "edit"
         end
       end
@@ -96,7 +95,7 @@ class BookridesController < ApplicationController
           flash[:success] = "Successfully Booked"
           redirect_to @bookride
       else
-        @cancel_or_book_flag = 2
+        @bookride.cancel_or_book_flag = 2
         render "edit"
       end
     end
